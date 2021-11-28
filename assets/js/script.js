@@ -14,6 +14,11 @@ var taskFormHandler = function() {
     // This selects and stores just the value of the input.
     var taskTypeInput = document.querySelector("select[name='task-type']").value;
 
+    // check if input values are empty strings
+    if (!taskNameInput || !taskTypeInput) {
+        alert("You need to fill out the task form!");
+        return false;
+    }
     // package the data as an object
     var taskDataObj = {
         name: taskNameInput,
@@ -22,6 +27,8 @@ var taskFormHandler = function() {
 
     //send it as an argument to createTaskEl
     createTaskEl(taskDataObj);
+
+    formEl.reset();
 }
 
 // Create HTML based on the data for the task object (like name and type)
