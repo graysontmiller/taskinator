@@ -5,6 +5,8 @@ var formEl = document.querySelector("#task-form");
 // Creates an object for the tasks-to-do list element from the html.
 var tasksToDoEl = document.querySelector('#tasks-to-do');
 
+var pageContentEl = document.querySelector("#page-content");
+
 var taskFormHandler = function() {
 
     //Prevents browser from refreshing when a submission is made
@@ -107,9 +109,47 @@ var createTaskActions = function(taskId) {
     return actionContainerEl;
 }
 
+var taskButtonHandler = function(event) {
+    // get target element from and event
+    var targetEl = event.target
+
+    //edit button was clicked
+    if (targetEl.matches(".edit-btn")) {
+        var taskId = targetEl.getAttribute("data-task-id");
+        editTask(taskId);
+    }
+    // delete button was clicked
+    else if (targetEl.matches(".delete-btn")) {
+        var taskId = targetEl.getAttribute("data-task-id");
+        deleteTask(taskId);
+    }
+};
+
+var editTask = function(taskId) {
+    //get task list item element
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+    // get content from task name and type
+    var taskName = taskSelected.querySelector("h3.task-name").textContent;
+    document.querySelector("input[name='task-name']").value = taskName;
+
+    var taskType = taskSelected.querySelector("span.task-type").textContent;
+    document.querySelector("select[name='task-type']").value = taskType;
+
+    document.querySelector("#save-task").textContent = "Save Task";
+    formEl.setAttribute("data-task-id", taskId);
+};
+
+var deleteTask = function(taskId) {
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+    taskSelected.remove();
+};
+
 // Adds an event to the form. When submit it calls on the taskFormHandler function which:
 //  - Defines listItemEl & creates a new 'li'
 //  - Gives listItemEl class name of 'task-item' for styling and text content of "This is a new task."
 //  - Appends listItemEl to tasksToDoEl. Applies the list item to the task to do list.
 formEl.addEventListener("submit", taskFormHandler);
 // this means that on submit, call back to previous function taskFormHandler.
+
+pageContentEl.addEventListener("click", taskButtonHandler);
