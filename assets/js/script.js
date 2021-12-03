@@ -7,6 +7,9 @@ var tasksToDoEl = document.querySelector('#tasks-to-do');
 
 var pageContentEl = document.querySelector("#page-content");
 
+var tasksInProgressEl = document.querySelector("#tasks-in-progress");
+var tasksCompletedEl = document.querySelector("#tasks-completed");
+
 var taskFormHandler = function() {
 
     //Prevents browser from refreshing when a submission is made
@@ -23,11 +26,22 @@ var taskFormHandler = function() {
         alert("You need to fill out the task form!");
         return false;
     }
-    // package the data as an object
-    var taskDataObj = {
-        name: taskNameInput,
-        type: taskTypeInput
-    };
+
+    var isEdit = formEl.hasAttribute("data-task-id");
+
+    // has data attribute, so get task id and call function for edit process
+    if (isEdit) {
+        var taskId = formEl.getAttribute("data-task-id");
+        completeEditTask(taskNameInput, taskTypeInput, taskId);
+    }
+    // no data attribute, so create object as normal and pass to createTaskEl
+    else {
+        // package the data as an object
+        var taskDataObj = {
+            name: taskNameInput,
+            type: taskTypeInput
+        };
+    }
 
     //send it as an argument to createTaskEl
     createTaskEl(taskDataObj);
@@ -62,6 +76,20 @@ var createTaskEl = function(taskDataObj) {
     //increase task counter for next unique id 
     taskIdCounter++;
 }
+
+var completeEditTask = function (taskName, taskType, taskId) {
+    //find matching task list item
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+    // set new values
+    taskSelected.querySelector("h3.task-name").textContent = taskName;
+    taskSelected.querySelector("span.task-type").textContent = taskType;
+
+    alert("Task Updated!");
+
+    formEl.removeAttribute("data-task-id");
+    document.querySelector("#save-task").textContent = "Add Task";
+};
 
 //Function to create actionable buttons for each task
 var createTaskActions = function(taskId) {
@@ -109,6 +137,26 @@ var createTaskActions = function(taskId) {
     return actionContainerEl;
 }
 
+var taskStatusChangeHandler = function(event) {
+  console.log(event.target.value);
+
+  // find task list item based on event.target's data-task-id attribute
+  var taskId = event.target.getAttribute("data-task-id");
+
+  var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+  // convert value to lower case
+  var statusValue = event.target.value.toLowerCase();
+
+  if (statusValue === "to do") {
+    tasksToDoEl.appendChild(taskSelected);
+  } else if (statusValue === "in progress") {
+    tasksInProgressEl.appendChild(taskSelected);
+  } else if (statusValue === "completed") {
+    tasksCompletedEl.appendChild(taskSelected);
+  }
+};
+
 var taskButtonHandler = function(event) {
     // get target element from and event
     var targetEl = event.target
@@ -153,3 +201,4 @@ formEl.addEventListener("submit", taskFormHandler);
 // this means that on submit, call back to previous function taskFormHandler.
 
 pageContentEl.addEventListener("click", taskButtonHandler);
+pageContentEl.addEventListener("change", taskStatusChangeHandler);
